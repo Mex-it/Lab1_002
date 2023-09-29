@@ -34,7 +34,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>PushButton</string>
+     <string>Exit</string>
     </property>
    </widget>
   </widget>
