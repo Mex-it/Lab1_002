@@ -30,16 +30,14 @@ class PlanBAI(QMainWindow):
         self.graphWidget = self.findChild(PlotWidget, "mainGraph")
 
         # Graph setup
-        self.time = [] # Graph data
-        self.temperatureReading = []
-        self.humidityReading = []
+        self.time = [1, 2, 3, 4, 5]  # Graph data
+        self.temperatureReading = [1.1, 1.2, 1.3, 1.4, 1.5]
+        self.humidityReading = [0.1, 0.2, 0.3, 0.4, 0.5]
 
-        self.graphWidget.setBackground("w") # Set background color to white.
+        self.graphWidget.setBackground("w")  # Set background color to white.
 
         # Add Title
-        self.graphWidget.setTitle(
-            "Climate Air Conditions", color="b", size="16pt"
-        )
+        self.graphWidget.setTitle("Climate Air Conditions", color="b", size="16pt")
 
         # Add Axis Labels
         tempStyle = {"color": "#f00", "font-size": "20px"}
@@ -67,7 +65,7 @@ class PlanBAI(QMainWindow):
         pen = pg.mkPen(color="b")
         self.humidityPlot = self.graphWidget.plot(
             self.time,
-            self.temperatureReading,
+            self.humidityReading,
             name="Humidity",
             pen=pen,
             symbolSize=3,
@@ -77,6 +75,7 @@ class PlanBAI(QMainWindow):
         # Show the UI
         self.show()
 
+    # Loads the UI file (widgets and stuff)
     def load_ui(self):
         path = os.fspath(
             Path(__file__).resolve().parent / "resources/interface.ui"
@@ -85,6 +84,7 @@ class PlanBAI(QMainWindow):
         # Load UI frompath
         uic.loadUi(path, self)
 
+    # Cleanly exits the program.
     def exitCleanly(self):
         quit()
 
