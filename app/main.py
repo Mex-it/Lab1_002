@@ -1,6 +1,7 @@
 import os
 import sys
 import time
+import serial
 
 import pyqtgraph as pg
 
@@ -11,6 +12,7 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QPushButton,
 )
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5 import uic
 from pyqtgraph import PlotWidget, plot
 
@@ -30,9 +32,9 @@ class PlanBAI(QMainWindow):
         self.graphWidget = self.findChild(PlotWidget, "mainGraph")
 
         # Graph setup
-        self.time = [1, 2, 3, 4, 5]  # Graph data
-        self.temperatureReading = [1.1, 1.2, 1.3, 1.4, 1.5]
-        self.humidityReading = [0.1, 0.2, 0.3, 0.4, 0.5]
+        self.time = [0]  # Graph data
+        self.temperatureReading = [0]
+        self.humidityReading = [0]
 
         self.graphWidget.setBackground("w")  # Set background color to white.
 
@@ -72,6 +74,13 @@ class PlanBAI(QMainWindow):
             symbolBrush=("b"),
         )
 
+        self.arduino = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
+
+        # Configure polling systems
+        self.poller = Poller()
+        self.poller.start()
+        self.poller.update_arduino.connect(self.logRead)
+
         # Show the UI
         self.show()
 
@@ -84,9 +93,45 @@ class PlanBAI(QMainWindow):
         # Load UI frompath
         uic.loadUi(path, self)
 
+    def logRead(self, check_ack=True):
+        """
+        Reads a line and decodes it but
+        also prints it out to the 'console' window.
+        """
+
+        try:
+            line = str(self.arduino.readline().decode().strip("\n\r"))
+            print(f"Read '{line}' as newline.")
+
+            splitLine = line.split(",")
+            if len(splitLine) > 1:
+                self.time.append(self.time[-1] + 1)  # Last time + 1
+                self.temperatureReading.append(float(splitLine[0]))
+                self.humidityReading.append(float(splitLine[1]))
+                self.show()
+        except TypeError as e:
+            print(f"Failed to read line! {e}")
+
+        self.tempPlot.setData(self.time, self.temperatureReading)
+        self.humidityPlot.setData(self.time, self.humidityReading)
+        # self.serialLog.append(line)
+        # self.serialLog.verticalScrollBar().setValue(
+        #     self.serialLog.verticalScrollBar().maximum()
+        # )
+
     # Cleanly exits the program.
     def exitCleanly(self):
         quit()
+
+
+class Poller(QThread):
+    # Triggers stuff tied to it, has no logic
+    update_arduino = pyqtSignal()
+
+    def run(self):
+        while True:
+            time.sleep(0.1)
+            self.update_arduino.emit()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,9 @@
+TimerOne@1.1.0
+TinyGPSPlus
+SPI@1.0
+adafruit/RTClib@2.0.3
+jchristensen/Timezone@1.2.4
+ArduinoLog@1.1.1
+EnableInterrupt@1.1.0
+Time@1.6.1
+jdolinay/avr-debugger @ ~1.1
